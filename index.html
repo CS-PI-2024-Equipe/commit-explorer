@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Commit Search</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>GitHub Commit Search</h1>
+        <form id="commit-form">
+            <label for="repo-link">Repository Link:</label>
+            <input type="text" id="repo-link" name="repo-link" placeholder="https://github.com/user/repo" required>
+
+            <label for="token">GitHub Token:</label>
+            <input type="password" id="token" name="token" required>
+
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date" name="start-date" required>
+
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date" name="end-date" required>
+
+            <button type="submit">Search Commits</button>
+        </form>
+        <div id="commits-container"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
