@@ -5,7 +5,7 @@ document.getElementById('commit-form').addEventListener('submit', function(event
     const token = document.getElementById('token').value;
     const startDate = document.getElementById('start-date').value;
     const endDate = document.getElementById('end-date').value;
-    const branchInput = document.getElementById('branch').value; // Nova linha para pegar a branch informada
+    const branchInput = document.getElementById('branch').value;
 
     const repoInfo = repoLink.replace('https://github.com/', '').split('/');
     const repoOwner = repoInfo[0];
@@ -17,6 +17,9 @@ document.getElementById('commit-form').addEventListener('submit', function(event
     const statusElement = document.createElement('p');
     statusElement.textContent = 'Fetching commits... Please wait.';
     commitsContainer.appendChild(statusElement);
+
+    // Armazena os hashes dos commits para evitar duplicações
+    const uniqueCommits = new Set();
 
     // Função para buscar commits de uma branch específica
     const fetchCommitsForBranch = (branchName) => {
@@ -30,23 +33,30 @@ document.getElementById('commit-form').addEventListener('submit', function(event
         .then(response => response.json())
         .then(data => {
             data.forEach(commit => {
-                const authorName = commit.commit.author.name;
+                // Usa o nome do autor em vez do login
+                const authorName = commit.commit.author.name || 'Unknown';
+                const commitHash = commit.sha;
 
-                if (!allCommits[authorName]) {
-                    allCommits[authorName] = [];
-                }
+                // Verifica se o commit já foi processado pelo hash
+                if (!uniqueCommits.has(commitHash)) {
+                    uniqueCommits.add(commitHash);
 
-                allCommits[authorName].push({
-                    message: commit.commit.message,
-                    date: commit.commit.author.date,
-                    branch: branchName,
-                    url: commit.html_url
-                });
+                    if (!allCommits[authorName]) {
+                        allCommits[authorName] = [];
+                    }
 
-                if (commitCounts[authorName]) {
-                    commitCounts[authorName]++;
-                } else {
-                    commitCounts[authorName] = 1;
+                    allCommits[authorName].push({
+                        message: commit.commit.message,
+                        date: commit.commit.author.date,
+                        branch: branchName,
+                        url: commit.html_url
+                    });
+
+                    if (commitCounts[authorName]) {
+                        commitCounts[authorName]++;
+                    } else {
+                        commitCounts[authorName] = 1;
+                    }
                 }
             });
         });
@@ -105,7 +115,7 @@ document.getElementById('commit-form').addEventListener('submit', function(event
                     commitElement.innerHTML = `
                         <p><strong>Branch:</strong> ${commit.branch}</p>
                         <p><strong>Message:</strong> ${commit.message}</p>
-                        <p><strong>Date:</strong> ${new Date(commit.date).toLocaleString()}</p>
+                        <p><strong>Date:</strong> ${new Date(commit.date).toLocaleDateString('pt-BR')}</p>
                         <p><a href="${commit.url}" target="_blank">View Commit on GitHub</a></p>
                     `;
                     devElement.appendChild(commitElement);
